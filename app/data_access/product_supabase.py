@@ -15,11 +15,13 @@ supabase: Client = create_client(db_url, db_key)
 
 # get all products
 def dataGetProducts():
-    response = (supabase.table("product")
-                .select("*")
-                .order("title", desc=False)
-                .execute()
-    )
+    # response = (supabase.table("product")
+    #             .select("*")
+    #             .order("title", desc=False)
+    #             .execute()
+    # )
+
+    response = supabase.from_('product').select('id, category(name), title, description, stock, price, thumbnail').execute()
 
     return response.data
 
@@ -28,10 +30,11 @@ def dataGetProduct(id):
     # select * from product where id = id 
     response = (
         supabase.table("product")
-        .select("*")
+        .select("*", "category(id, name)")
         .eq("id", id)
         .execute()
     )
+
     return response.data[0]
 
 # update product
@@ -74,6 +77,16 @@ def dataDeleteProduct(id):
         supabase.table("product")
         .delete()
         .eq('id', id)
+        .execute()
+    )
+    return response.data
+
+def dataFilterProduct(id):
+    response = (
+        supabase.table("product")
+        .select("*, category(id, name)")
+        .eq("category_id",id)
+        .order("title", desc=False)
         .execute()
     )
     return response.data
